@@ -3,28 +3,41 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public enum EnemyState {  None=-1,Idle = 0, Wander, /*●*/Pursuit,}
+public enum EnemyState {  None=-1,Idle = 0, Wander, Pursuit, /*●*/Attack,}
 
 public class EnemyFSM : MonoBehaviour
 {
-    /*●*/[Header("Pursuit")]
-    /*●*/[SerializeField]
-    /*●*/private float targetRecognitionRange = 8;       // 인식 범위 (이 범위 안에 들어오면 "PurSuit" 상태로 변경)
-    /*●*/[SerializeField]
-    /*●*/private float pursuitLimitRange = 10;       // 추적 범위 (이 범위 바깥으로 나가면 "Wander" 상태로 변경)
+    [Header("Pursuit")]
+    [SerializeField]
+    private float targetRecognitionRange = 8;       // 인식 범위 (이 범위 안에 들어오면 "PurSuit" 상태로 변경)
+    [SerializeField]
+    private float pursuitLimitRange = 10;       // 추적 범위 (이 범위 바깥으로 나가면 "Wander" 상태로 변경)
+
+    [Header("Attack")]
+    [SerializeField]
+    private GameObject projectilePrefab;        // 발사체 프리팹
+    [SerializeField]
+    private Transform projectileSpawnPoint;     // 발사체 생성 위치
+    [SerializeField]
+    private float attackRange = 5;      // 공격 범위 (이 범위 안에 들어오면 "Attack" 상태로 변경)
+    [SerializeField]        
+    private float attackRate = 1;       // 공격 속도
 
     private EnemyState enemyState = EnemyState.None;        // 현재 적 행동
+    private float lastAttackTime = 0;       // 공격 주기 계산용 변수
 
     private Status status;      // 이동속도 등의 정보
     private NavMeshAgent navMeshAgent;      // 이동 제어를 위한 NavMeshAgent
-    /*●*/private Transform target;       // 적의 공격 대상 (플레이어)
+    private Transform target;       // 적의 공격 대상 (플레이어)
+    /*●*/private EnemyMemoryPool enemyMemoryPool;        // 적 메모리 풀 (적 오브젝트 비활성화에 사용)
 
     //private void Awake()
-    public void Setup(Transform target)
+    public void Setup(Transform target, /*●*/EnemyMemoryPool enemyMemoryPool)
     {
         status=GetComponent<Status>();
         navMeshAgent=GetComponent<NavMeshAgent>();
-        /*●*/this.target=target;
+        this.target=target;
+        /*●*/this.enemyMemoryPool=enemyMemoryPool;
 
         // NavMeshAgent 컴포넌트에서 회전을 업데이트하지 않도록 설정
         navMeshAgent.updateRotation = false;
@@ -65,8 +78,8 @@ public class EnemyFSM : MonoBehaviour
         while (true)
         {
             // "대기" 상태일 떄 하는 행동
-            /*●*/// 타겟과의 거리에 따라 행동 선택 (배회, 추격, 원거리 공격)
-            /*●*/CalculateDistanceToTargetAndSelectState();
+            // 타겟과의 거리에 따라 행동 선택 (배회, 추격, 원거리 공격)
+            CalculateDistanceToTargetAndSelectState();
 
             yield return null;
         }
@@ -110,8 +123,8 @@ public class EnemyFSM : MonoBehaviour
                 ChangeState(EnemyState.Idle);
             }
 
-            /*●*/// 타겟과의 거리에 따라 행동 선택 (배회, 추격, 원거리 공격)
-            /*●*/CalculateDistanceToTargetAndSelectState();
+            // 타겟과의 거리에 따라 행동 선택 (배회, 추격, 원거리 공격)
+            CalculateDistanceToTargetAndSelectState();
 
             yield return null;
         }
@@ -149,57 +162,88 @@ public class EnemyFSM : MonoBehaviour
         return position;
     }
 
-    /*●*/private IEnumerator Pursuit()
-    /*●*/{
-    /*●*/    while (true)
-    /*●*/    {
-    /*●*/        // 이동 속도 설정 (배회할 때는 걷는 속도로 이동, 추적할 때는 뛰는 속도로 이동)
-    /*●*/        navMeshAgent.speed = status.RunSpeed;
-    /*●*/
-    /*●*/        // 목표위치를 현재 플레이어의 위치로 설정
-    /*●*/        navMeshAgent.SetDestination(target.position);
-    /*●*/
-    /*●*/        // 타겟 방향을 주시하도록 함
-    /*●*/        LookRotationToTarget();
-    /*●*/
-    /*●*/        // 타겟과의 거리에 따라 행동 선택 (배회, 추격, 원거리 공격)
-    /*●*/        CalculateDistanceToTargetAndSelectState();
-    /*●*/
-    /*●*/        yield return null;
-    /*●*/    }
-    /*●*/}
+    private IEnumerator Pursuit()
+    {
+        while (true)
+        {
+            // 이동 속도 설정 (배회할 때는 걷는 속도로 이동, 추적할 때는 뛰는 속도로 이동)
+            navMeshAgent.speed = status.RunSpeed;
+    
+            // 목표위치를 현재 플레이어의 위치로 설정
+            navMeshAgent.SetDestination(target.position);
+    
+            // 타겟 방향을 주시하도록 함
+            LookRotationToTarget();
+    
+            // 타겟과의 거리에 따라 행동 선택 (배회, 추격, 원거리 공격)
+            CalculateDistanceToTargetAndSelectState();
+    
+            yield return null;
+        }
+    }
 
-    /*●*/private void LookRotationToTarget()
-    /*●*/{
-    /*●*/    // 목표 위치
-    /*●*/    Vector3 to = new Vector3(target.position.x,0,target.position.z);
-    /*●*/    // 내 위치
-    /*●*/    Vector3 from = new Vector3(transform.position.x,0,transform.position.z);
-    /*●*/
-    /*●*/    // 바로 돌기
-    /*●*/    transform.rotation = Quaternion.LookRotation(to-from);
-    /*●*/
-    /*●*/    // 서서히 돌기
-    /*●*/    //Quaternion rotation = Quaternion.LookRotation(to - from);
-    /*●*/    //transform.rotation = Quaternion.Slerp(transform.rotation, rotation, 0.01f);
-    /*●*/}
+    private IEnumerator Attack()
+    {
+        // 공격할 때는 이동을 멈추도록 설정
+        navMeshAgent.ResetPath();
+    
+        while (true)
+        {
+            // 타겟 방향 주시
+            LookRotationToTarget();
+    
+            // 타겟과의 거리에 따라 행동 선택 (배회, 추격, 원거리 공격)
+            CalculateDistanceToTargetAndSelectState();
+    
+            if (Time.time - lastAttackTime > attackRate)
+            {
+                // 공격주지가 되어야 공격할 수 있도록 하기 위해 연재 시간 저장
+                lastAttackTime = Time.time;
+    
+                // 발사체 생성
+                GameObject clone = Instantiate(projectilePrefab,projectileSpawnPoint.position,projectileSpawnPoint.rotation);
+                clone.GetComponent<EnemyProjectile>().Setup(target.position);
+            }
+    
+            yield return null;
+        }
+    }
 
-    /*●*/private void CalculateDistanceToTargetAndSelectState()
-    /*●*/{
-    /*●*/    if (target == null) return;
-    /*●*/
-    /*●*/    // 플레이어(target)와 적의 거리 계산 후 거리에 따라 행동 선택
-    /*●*/    float distance = Vector3.Distance(target.position, transform.position);
-    /*●*/
-    /*●*/    if (distance <= targetRecognitionRange)
-    /*●*/    {
-    /*●*/        ChangeState(EnemyState.Pursuit);
-    /*●*/    }
-    /*●*/    else if(distance >= pursuitLimitRange)
-    /*●*/    {
-    /*●*/        ChangeState(EnemyState.Wander);
-    /*●*/    }
-    /*●*/}
+    private void LookRotationToTarget()
+    {
+        // 목표 위치
+        Vector3 to = new Vector3(target.position.x,0,target.position.z);
+        // 내 위치
+        Vector3 from = new Vector3(transform.position.x,0,transform.position.z);
+    
+        // 바로 돌기
+        transform.rotation = Quaternion.LookRotation(to-from);
+    
+        // 서서히 돌기
+        //Quaternion rotation = Quaternion.LookRotation(to - from);
+        //transform.rotation = Quaternion.Slerp(transform.rotation, rotation, 0.01f);
+    }
+
+    private void CalculateDistanceToTargetAndSelectState()
+    {
+        if (target == null) return;
+    
+        // 플레이어(target)와 적의 거리 계산 후 거리에 따라 행동 선택
+        float distance = Vector3.Distance(target.position, transform.position);
+
+        if (distance <= attackRange)
+        {
+            ChangeState(EnemyState.Attack);
+        }
+        else if (distance <= targetRecognitionRange)
+        {
+            ChangeState(EnemyState.Pursuit);
+        }
+        else if(distance >= pursuitLimitRange)
+        {
+            ChangeState(EnemyState.Wander);
+        }
+    }
 
     private void OnDrawGizmos()
     {
@@ -207,12 +251,26 @@ public class EnemyFSM : MonoBehaviour
         Gizmos.color = Color.black;
         Gizmos.DrawRay(transform.position,navMeshAgent.destination-transform.position);
 
-        /*●*/// 목표 인식 범위
-        /*●*/Gizmos.color = Color.red;
-        /*●*/Gizmos.DrawWireSphere(transform.position, targetRecognitionRange);
-        /*●*/
-        /*●*/// 추적 범위
-        /*●*/Gizmos.color = Color.green;
-        /*●*/Gizmos.DrawWireSphere(transform.position, pursuitLimitRange);
+        // 목표 인식 범위
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, targetRecognitionRange);
+        
+        // 추적 범위
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, pursuitLimitRange);
+
+        // 공격 범위
+        Gizmos.color =new Color(0.39f, 0.04f, 0.04f);
+        Gizmos.DrawWireSphere(transform.position, attackRange);
     }
+    
+    /*●*/public void TakeDamage(int damage)
+    /*●*/{
+    /*●*/    bool isDie=status.DecreaseHP(damage);
+    /*●*/
+    /*●*/    if(isDie == true)
+    /*●*/    {
+    /*●*/        enemyMemoryPool.DeactiveEnemy(gameObject);
+    /*●*/    }
+    /*●*/}
 }

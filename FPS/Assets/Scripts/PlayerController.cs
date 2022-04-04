@@ -110,18 +110,27 @@ public class PlayerController : MonoBehaviour
             weapon.StopWeaponAction();
         }
 
-        /*¡Ü*/if (Input.GetMouseButtonDown(1))
-        /*¡Ü*/{
-        /*¡Ü*/    weapon.StartWeaponAction(1);
-        /*¡Ü*/}
-        /*¡Ü*/else if (Input.GetMouseButtonUp(1))
-        /*¡Ü*/{
-        /*¡Ü*/    weapon.StopWeaponAction(1);
-        /*¡Ü*/}
+        if (Input.GetMouseButtonDown(1))
+        {
+            weapon.StartWeaponAction(1);
+        }
+        else if (Input.GetMouseButtonUp(1))
+        {
+            weapon.StopWeaponAction(1);
+        }
 
         if (Input.GetKeyDown(keyCodeReload))
         {
             weapon.StartReload();
         }
     }
+    /*¡Ü*/public void TakeDamage(int damage)
+    /*¡Ü*/{
+    /*¡Ü*/    bool isDie = status.DecreaseHP(damage);
+    /*¡Ü*/
+    /*¡Ü*/    if(isDie == true)
+    /*¡Ü*/    {
+    /*¡Ü*/        Debug.Log("GameOver");
+    /*¡Ü*/    }
+    /*¡Ü*/}
 }

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum ImpactType { Normal=0, Obstacle,}
+public enum ImpactType { Normal=0, Obstacle, /*¡Ü*/Enemy,}
 
 public class ImpactMemoryPool : MonoBehaviour
 {
@@ -31,6 +31,10 @@ public class ImpactMemoryPool : MonoBehaviour
         {
             OnSpawnImpact(ImpactType.Obstacle, hit.point, Quaternion.LookRotation(hit.normal));
         }
+        /*¡Ü*/else if (hit.transform.tag == "ImpactEnemy")
+        /*¡Ü*/{
+        /*¡Ü*/    OnSpawnImpact(ImpactType.Enemy,hit.point,Quaternion.LookRotation(hit.normal));
+        /*¡Ü*/}
     }
 
     public void OnSpawnImpact(ImpactType type, Vector3 position, Quaternion rotation)

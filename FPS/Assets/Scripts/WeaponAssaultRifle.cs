@@ -40,16 +40,16 @@ public class WeaponAssaultRifle : MonoBehaviour
     [SerializeField]
     private WeaponSetting weaponSetting;              // 무기 설정
 
-    /*●*/[Header("Aim UI")]
-    /*●*/[SerializeField]
-    /*●*/private Image imageAim;     // default / aim 모드에 따라 Aim 이미지 활성 / 비활성
+    [Header("Aim UI")]
+    [SerializeField]
+    private Image imageAim;     // default / aim 모드에 따라 Aim 이미지 활성 / 비활성
 
     private float lastAttackTime = 0;                       // 마지막 발사시간 체크용
     private bool isReload = false;          // 재장전 중인지 체크
-    /*●*/private bool isAttack=false;        // 공격 여부 체크용
-    /*●*/private bool isModeChange = false;      // 모드 전환 여부 체크용
-    /*●*/private float defaultModeFOV = 60f;      // 기본모드에서의 카메라 FOV
-    /*●*/private float aimModeFOV = 30f;          // AIM모드에서의 카메라 FOV
+    private bool isAttack=false;        // 공격 여부 체크용
+    private bool isModeChange = false;      // 모드 전환 여부 체크용
+    private float defaultModeFOV = 60f;      // 기본모드에서의 카메라 FOV
+    private float aimModeFOV = 30f;          // AIM모드에서의 카메라 FOV
 
     private AudioSource          audioSource;            // 사운드 재생 컴포넌트
     private PlayerAnimatorController anim;             // 애니메이션 재생 제어
@@ -90,7 +90,7 @@ public class WeaponAssaultRifle : MonoBehaviour
         // 무기가 활성화될 때 해당 무기의 탄 수 정보를 갱신한다.
         onAmmoEvent.Invoke(weaponSetting.currentAmmo,weaponSetting.maxAmmo);
 
-        /*●*/ResetVariables();
+        ResetVariables();
     }
 
     // 외부에서 공격 시작할 때 StartWeaponAction(0) 메소드 호출
@@ -100,7 +100,7 @@ public class WeaponAssaultRifle : MonoBehaviour
         if (isReload == true) return;
 
         // 모드 전환중이면 무기 액션을 할 수 없다.
-        /*●*/if (isModeChange == true) return;
+        if (isModeChange == true) return;
 
         // 마우스 왼쪽 클릭 (공격 시작)
         if (type == 0)
@@ -108,7 +108,7 @@ public class WeaponAssaultRifle : MonoBehaviour
             // 연속 공격
             if (weaponSetting.isAutomaticAttack == true)
             {
-                /*●*/isAttack = true;
+                isAttack = true;
                 // OnAttack()을 매 프레임 실행
                 StartCoroutine("OnAttackLoop");
             }
@@ -120,13 +120,13 @@ public class WeaponAssaultRifle : MonoBehaviour
             }
         }
         // 마우스 오른쪽 클릭 (모드 전환)
-        /*●*/else
-        /*●*/{
-        /*●*/    // 공격 중일 때는 모드 전환을 할 수 없다
-        /*●*/    if (isAttack == true) return;
-        /*●*/
-        /*●*/    StartCoroutine("OnModeChange");
-        /*●*/}
+        else
+        {
+            // 공격 중일 때는 모드 전환을 할 수 없다
+            if (isAttack == true) return;
+        
+            StartCoroutine("OnModeChange");
+        }
     }
     public void StartReload()
     {
@@ -144,7 +144,7 @@ public class WeaponAssaultRifle : MonoBehaviour
         // 마우스 왼쪽 해제 (공격 종료)
         if(type == 0)
         {
-            /*●*/isAttack=false;
+            isAttack=false;
             StopCoroutine("OnAttackLoop");
         }
     }
@@ -184,13 +184,13 @@ public class WeaponAssaultRifle : MonoBehaviour
             // 무기 애니메이션 재생
             //anim.Play("Fire",-1,0);
             // 무기 애니메이션 재생 (모드에 따라 AimFire or Fire 애니메이션 재생)
-            /*●*/string animation = anim.AimModeIs == true ? "AimFire" : "Fire";
-            /*●*/anim.Play(animation, - 1, 0);
+            string animation = anim.AimModeIs == true ? "AimFire" : "Fire";
+            anim.Play(animation, - 1, 0);
             // TIP) anim.Play("Fire"); : 같은 애니메이션을 반복할 때 중간에 끊지 못하고 재생 완료 후 다시 재생
             // TIP) anim.Play("Fire",-1,0); : 같은 애니메이션을 반복할 때 애니메이션을 끊고 처음부터 다시 재생
 
             // 총구 이펙트 재생 (default 모드 일 때만 재생)
-            /*●*/if(anim.AimModeIs==false) StartCoroutine("OnMuzzleFlashEffect");
+            if(anim.AimModeIs==false) StartCoroutine("OnMuzzleFlashEffect");
             // 공격 사운드 재생
             PlaySound(audioClipFire);
             // 탄피 생성
@@ -267,35 +267,40 @@ public class WeaponAssaultRifle : MonoBehaviour
         if (Physics.Raycast(bulletSpawnPoint.position, attackDirection, out hit, weaponSetting.attackDistance))
         {
             impactMemoryPool.SpawnImpact(hit);
+
+            /*●*/if (hit.transform.tag == "ImpactEnemy")
+            /*●*/{
+            /*●*/    hit.transform.GetComponent<EnemyFSM>().TakeDamage(weaponSetting.damage);
+            /*●*/}
         }
         Debug.DrawRay(bulletSpawnPoint.position, attackDirection * weaponSetting.attackDistance, Color.blue);
     }
-    /*●*/private IEnumerator OnModeChange()
-    /*●*/{
-    /*●*/    float current = 0;
-    /*●*/    float percent = 0;
-    /*●*/    float time = 0.35f;
-    /*●*/
-    /*●*/    anim.AimModeIs = !anim.AimModeIs;
-    /*●*/    imageAim.enabled = !imageAim.enabled;
-    /*●*/
-    /*●*/    float start = mainCamera.fieldOfView;
-    /*●*/    float end = anim.AimModeIs==true? aimModeFOV : defaultModeFOV;
-    /*●*/
-    /*●*/    isModeChange = true;
-    /*●*/
-    /*●*/    while (percent < 1)
-    /*●*/    {
-    /*●*/        current+=Time.deltaTime;
-    /*●*/        percent=current/time;
-    /*●*/
-    /*●*/        // mode에 따라 카메라의 시야각을 변경
-    /*●*/        mainCamera.fieldOfView = Mathf.Lerp(start,end,percent);
-    /*●*/
-    /*●*/        yield return null;
-    /*●*/    }
-    /*●*/    isModeChange=false;
-    /*●*/}
+    private IEnumerator OnModeChange()
+    {
+        float current = 0;
+        float percent = 0;
+        float time = 0.35f;
+    
+        anim.AimModeIs = !anim.AimModeIs;
+        imageAim.enabled = !imageAim.enabled;
+    
+        float start = mainCamera.fieldOfView;
+        float end = anim.AimModeIs==true? aimModeFOV : defaultModeFOV;
+    
+        isModeChange = true;
+    
+        while (percent < 1)
+        {
+            current+=Time.deltaTime;
+            percent=current/time;
+    
+            // mode에 따라 카메라의 시야각을 변경
+            mainCamera.fieldOfView = Mathf.Lerp(start,end,percent);
+    
+            yield return null;
+        }
+        isModeChange=false;
+    }
 
     private void ResetVariables()
     {
