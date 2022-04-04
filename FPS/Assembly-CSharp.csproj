@@ -78,8 +78,9 @@
     <Compile Include="Assets\Scripts\Casing.cs" />
     <Compile Include="Assets\Scripts\MovementCharacterController.cs" />
     <Compile Include="Assets\Scripts\WeaponSetting.cs" />
-    <Compile Include="Assets\Scripts\CasingMemoryPool.cs" />
     <Compile Include="Assets\Scripts\EnemyMemoryPool.cs" />
+    <Compile Include="Assets\Scripts\CasingMemoryPool.cs" />
+    <Compile Include="Assets\Scripts\EnemyFSM.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

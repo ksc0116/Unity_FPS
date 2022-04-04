@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class EnemyMemoryPool : MonoBehaviour
 {
+    /*●*/[SerializeField]
+    /*●*/private Transform target;       // 적의 목표 (플레이어)
     [SerializeField]
     private GameObject enemySpawnPointPrefab;           // 적이 등장하기 전 적의 등장 위치를 알려주는 프리팹
     [SerializeField]
@@ -39,7 +41,7 @@ public class EnemyMemoryPool : MonoBehaviour
             {
                 GameObject item = spawnPointMemoryPool.ActivatePoolItem();
 
-                item.transform.position = new Vector3(Random.Range(-mapSize.x * 0.49f, mapSize.x * 0.49f), 1,
+                item.transform.position = new Vector3(Random.Range(-mapSize.x * 0.49f, mapSize.x * 0.49f), 0,
                                                                        Random.Range(-mapSize.y * 0.49f, mapSize.y * 0.49f));
 
                 StartCoroutine("SpawnEnemy", item);
@@ -62,6 +64,8 @@ public class EnemyMemoryPool : MonoBehaviour
         // 적 오브젝트를 생성하고, 적의 위치를 point의 위치로 설정
         GameObject item = enemyMemoryPool.ActivatePoolItem();
         item.transform.position=point.transform.position;
+
+        /*●*/item.GetComponent<EnemyFSM>().Setup(target);
 
         // 타일 오브젝트 비활성화
         spawnPointMemoryPool.DeactivatePoolItem(point);
