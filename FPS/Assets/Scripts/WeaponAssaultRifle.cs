@@ -268,9 +268,13 @@ public class WeaponAssaultRifle : MonoBehaviour
         {
             impactMemoryPool.SpawnImpact(hit);
 
-            /*¡Ü*/if (hit.transform.tag == "ImpactEnemy")
+            if (hit.transform.tag == "ImpactEnemy")
+            {
+                hit.transform.GetComponent<EnemyFSM>().TakeDamage(weaponSetting.damage);
+            }
+            /*¡Ü*/else if (hit.transform.tag == "InteractionObject")
             /*¡Ü*/{
-            /*¡Ü*/    hit.transform.GetComponent<EnemyFSM>().TakeDamage(weaponSetting.damage);
+            /*¡Ü*/    hit.transform.GetComponent<InteractionObject>().TakeDamage(weaponSetting.damage);
             /*¡Ü*/}
         }
         Debug.DrawRay(bulletSpawnPoint.position, attackDirection * weaponSetting.attackDistance, Color.blue);

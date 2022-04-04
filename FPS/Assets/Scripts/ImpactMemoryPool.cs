@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum ImpactType { Normal=0, Obstacle, /*¡Ü*/Enemy,}
+public enum ImpactType { Normal=0, Obstacle, Enemy, /*¡Ü*/InteractionObject,}
 
 public class ImpactMemoryPool : MonoBehaviour
 {
@@ -31,17 +31,28 @@ public class ImpactMemoryPool : MonoBehaviour
         {
             OnSpawnImpact(ImpactType.Obstacle, hit.point, Quaternion.LookRotation(hit.normal));
         }
-        /*¡Ü*/else if (hit.transform.tag == "ImpactEnemy")
-        /*¡Ü*/{
-        /*¡Ü*/    OnSpawnImpact(ImpactType.Enemy,hit.point,Quaternion.LookRotation(hit.normal));
-        /*¡Ü*/}
+       else if (hit.transform.tag == "ImpactEnemy")
+       {
+           OnSpawnImpact(ImpactType.Enemy,hit.point,Quaternion.LookRotation(hit.normal));
+       }
+       /*¡Ü*/else if (hit.transform.tag == "InteractionObject")
+       /*¡Ü*/{
+       /*¡Ü*/    Color color=hit.transform.GetComponentInChildren<MeshRenderer>().material.color;
+       /*¡Ü*/    OnSpawnImpact(ImpactType.InteractionObject, hit.point, Quaternion.LookRotation(hit.normal),color);
+       /*¡Ü*/}
     }
 
-    public void OnSpawnImpact(ImpactType type, Vector3 position, Quaternion rotation)
+    public void OnSpawnImpact(ImpactType type, Vector3 position, Quaternion rotation,/*¡Ü*/Color color = new Color())
     {
         GameObject item=memoryPool[(int)type].ActivatePoolItem();
         item.transform.position=position;
         item.transform.rotation=rotation;
         item.GetComponent<Impact>().Setup(memoryPool[(int)type]);
+
+        /*¡Ü*/if (type == ImpactType.InteractionObject)
+        /*¡Ü*/{
+        /*¡Ü*/    ParticleSystem.MainModule main= item.GetComponent<ParticleSystem>().main;
+        /*¡Ü*/    main.startColor=color;
+        /*¡Ü*/}
     }
 }
