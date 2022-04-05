@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-/*¡Ü*/[System.Serializable]
-/*¡Ü*/public class HPEvent : UnityEvent<int,int> {  }
+[System.Serializable]
+public class HPEvent : UnityEvent<int,int> {  }
 public class Status : MonoBehaviour
 {
-    /*¡Ü*/[HideInInspector]
-    /*¡Ü*/public HPEvent onHPEvent=new HPEvent();
+    [HideInInspector]
+    public HPEvent onHPEvent=new HPEvent();
 
     [Header("Walk, Run Speed")]
     [SerializeField]
@@ -16,35 +16,43 @@ public class Status : MonoBehaviour
     [SerializeField]
     private float runSpeed;
 
-    /*¡Ü*/[Header("HP")]
-    /*¡Ü*/[SerializeField]
-    /*¡Ü*/private int maxHP = 100;
-    /*¡Ü*/private int currentHP;
+    [Header("HP")]
+    [SerializeField]
+    private int maxHP = 100;
+    private int currentHP;
 
     public float WalkSpeed => walkSpeed;
     public float RunSpeed => runSpeed;
 
-    /*¡Ü*/public int CurrentHP => currentHP;
-    /*¡Ü*/public int MaxHP => maxHP;
-    /*¡Ü*/
-    /*¡Ü*/private void Awake()
-    /*¡Ü*/{
-    /*¡Ü*/    currentHP = maxHP;
-    /*¡Ü*/}
+    public int CurrentHP => currentHP;
+    public int MaxHP => maxHP;
+    
+    private void Awake()
+    {
+        currentHP = maxHP;
+    }
 
-    /*¡Ü*/public bool DecreaseHP(int damage)
+    public bool DecreaseHP(int damage)
+    {
+        int previousHP = currentHP;
+    
+        currentHP=currentHP- damage> 0 ? currentHP - damage : 0;
+    
+        onHPEvent.Invoke(previousHP,currentHP);
+    
+        if (currentHP == 0)
+        {
+            return true;
+        }
+    
+        return false;
+    }
+
+    /*¡Ü*/public void IncreaseHP(int hp)
     /*¡Ü*/{
-    /*¡Ü*/    int previousHP = currentHP;
-    /*¡Ü*/
-    /*¡Ü*/    currentHP=currentHP- damage> 0 ? currentHP - damage : 0;
+    /*¡Ü*/    int previousHP=currentHP;
+    /*¡Ü*/    currentHP=currentHP+hp > maxHP ? maxHP : currentHP + hp;
     /*¡Ü*/
     /*¡Ü*/    onHPEvent.Invoke(previousHP,currentHP);
-    /*¡Ü*/
-    /*¡Ü*/    if (currentHP == 0)
-    /*¡Ü*/    {
-    /*¡Ü*/        return true;
-    /*¡Ü*/    }
-    /*¡Ü*/
-    /*¡Ü*/    return false;
     /*¡Ü*/}
 }

@@ -272,10 +272,10 @@ public class WeaponAssaultRifle : MonoBehaviour
             {
                 hit.transform.GetComponent<EnemyFSM>().TakeDamage(weaponSetting.damage);
             }
-            /*●*/else if (hit.transform.tag == "InteractionObject")
-            /*●*/{
-            /*●*/    hit.transform.GetComponent<InteractionObject>().TakeDamage(weaponSetting.damage);
-            /*●*/}
+            else if (hit.transform.tag == "InteractionObject")
+            {
+                hit.transform.GetComponent<InteractionObject>().TakeDamage(weaponSetting.damage);
+            }
         }
         Debug.DrawRay(bulletSpawnPoint.position, attackDirection * weaponSetting.attackDistance, Color.blue);
     }
@@ -318,4 +318,10 @@ public class WeaponAssaultRifle : MonoBehaviour
         audioSource.clip = clip;        // 새로운 사운드 clip으로 교체 후
         audioSource.Play();             // 사운드 재생
     }
+    /*●*/public void IncreaseMagazine(int magazine)
+    /*●*/{
+    /*●*/    weaponSetting.currentMagazine = weaponSetting.currentMagazine + magazine > MaxMagazine ? MaxMagazine : weaponSetting.currentMagazine + magazine;
+    /*●*/
+    /*●*/    onMagazineEvent.Invoke(CurrentMagazine);
+    /*●*/}
 }
