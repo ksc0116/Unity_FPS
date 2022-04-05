@@ -58,20 +58,24 @@
     <Compile Include="Assets\Scripts\PlayerHUD.cs" />
     <Compile Include="Assets\Scripts\ImpactMemoryPool.cs" />
     <Compile Include="Assets\ExternalAssets\Low Poly FPS Pack - Free (Sample)\Components\Scripts\Casings_&amp;_Projectiles\GrenadeScript.cs" />
+    <Compile Include="Assets\Scripts\NormalBarrel.cs" />
     <Compile Include="Assets\ExternalAssets\Low Poly FPS Pack - Free (Sample)\Components\Demo_Scene_Components\Scripts\ExplosiveBarrelScript.cs" />
     <Compile Include="Assets\Scripts\RotateToMouse.cs" />
     <Compile Include="Assets\ExternalAssets\Low Poly FPS Pack - Free (Sample)\Components\Demo_Scene_Components\Scripts\TargetScript.cs" />
     <Compile Include="Assets\Scripts\EnemyProjectile.cs" />
     <Compile Include="Assets\ExternalAssets\Low Poly FPS Pack - Free (Sample)\Components\Scripts\Casings_&amp;_Projectiles\CasingScript.cs" />
+    <Compile Include="Assets\Scripts\ParticleAutoDestroyerByTime.cs" />
     <Compile Include="Assets\Scripts\Impact.cs" />
     <Compile Include="Assets\ExternalAssets\Low Poly FPS Pack - Free (Sample)\Components\Scripts\Explosions_&amp;_Impacts\ExplosionScript.cs" />
     <Compile Include="Assets\ExternalAssets\Low Poly FPS Pack - Free (Sample)\Components\Scripts\Explosions_&amp;_Impacts\ImpactScript.cs" />
+    <Compile Include="Assets\Scripts\ExplosionBarrel.cs" />
     <Compile Include="Assets\Scripts\WeaponAssaultRifle.cs" />
     <Compile Include="Assets\Scripts\EnemySpawnPoint.cs" />
     <Compile Include="Assets\ExternalAssets\Low Poly FPS Pack - Free (Sample)\Components\Scripts\Weapon_Scripts\AutomaticGunScriptLPFP.cs" />
     <Compile Include="Assets\Scripts\Status.cs" />
     <Compile Include="Assets\Scripts\PlayerAnimatorController.cs" />
     <Compile Include="Assets\ExternalAssets\Low Poly FPS Pack - Free (Sample)\Components\Scripts\Bullet\BulletScript.cs" />
+    <Compile Include="Assets\Scripts\InteractionObject.cs" />
     <Compile Include="Assets\ExternalAssets\Low Poly FPS Pack - Free (Sample)\Components\Scripts\FPSController\FpsControllerLPFP.cs" />
     <Compile Include="Assets\Scripts\MovementTransform.cs" />
     <Compile Include="Assets\Scripts\PlayerController.cs" />
@@ -80,13 +84,11 @@
     <Compile Include="Assets\Scripts\Casing.cs" />
     <Compile Include="Assets\Scripts\MovementCharacterController.cs" />
     <Compile Include="Assets\Scripts\WeaponSetting.cs" />
+    <Compile Include="Assets\Scripts\DestructibleBarrel.cs" />
     <Compile Include="Assets\Scripts\EnemyFSM.cs" />
     <Compile Include="Assets\Scripts\EnemyMemoryPool.cs" />
     <Compile Include="Assets\Scripts\CasingMemoryPool.cs" />
-    <Compile Include="Assets\Scripts\ParticleAutoDestroyerByTime.cs" />
-    <Compile Include="Assets\Scripts\InteractionObject.cs" />
-    <Compile Include="Assets\Scripts\ExplosionBarrel.cs" />
-    <Compile Include="Assets\Scripts\NormalBarrel.cs" />
+    <Compile Include="Assets\Scripts\Target.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
